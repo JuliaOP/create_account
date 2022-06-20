@@ -27,24 +27,27 @@ class _AccountFormState extends State<AccountForm> {
           child: Column(
             children: [
               FormCard(
-                  PersonalInformation(),
-                  "Informações Pessoais"
+                  const PersonalInformation(),
+                  "Informações Pessoais",
+                true
 
               ),
-              SizedBox(
+              const SizedBox(
                 height: 8.0,
               ),
               FormCard(
-                PersonalInformation(),
-                "Endereço"
+                const PersonalInformation(),
+                "Endereço",
+                false
 
               ),
-              SizedBox(
+              const SizedBox(
                 height: 8.0,
               ),
               FormCard(
-                  PersonalInformation(),
-                  "Contato"
+                  const PersonalInformation(),
+                  "Contato",
+                false
 
               ),
             ],

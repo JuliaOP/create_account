@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class FormCard extends StatefulWidget {
   Widget formFields;
   String header;
+  bool isVisible;
 
-  FormCard(this.formFields, this.header);
+  FormCard(this.formFields, this.header, this.isVisible);
 
   @override
   State<FormCard> createState() => _FormCardState();
@@ -13,6 +14,9 @@ class FormCard extends StatefulWidget {
 class _FormCardState extends State<FormCard> {
 
   bool _isExpanded = false;
+
+  final _headerStyle = const TextStyle(fontFamily: 'roboto', fontSize: 20,
+      fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: 1.5);
 
   void _checkExpanded(){
     setState(() {
@@ -23,7 +27,7 @@ class _FormCardState extends State<FormCard> {
 
   @override
   void initState() {
-    _isExpanded = false;
+    _isExpanded = widget.isVisible;
     super.initState();
   }
 
@@ -70,7 +74,7 @@ class _FormCardState extends State<FormCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(widget.header),
+                  Text(widget.header, style: _headerStyle,),
                   Icon( _isExpanded ?
                   Icons.arrow_circle_up_outlined
                       : Icons.arrow_circle_down_outlined, color: Colors.greenAccent,)
