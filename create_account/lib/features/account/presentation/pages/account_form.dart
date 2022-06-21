@@ -1,10 +1,11 @@
-import 'package:create_account/features/account/presentation/widgets/personal_information.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/form_card.dart';
 
 class AccountForm extends StatefulWidget {
-  const AccountForm({Key? key}) : super(key: key);
+  final body;
+
+  AccountForm(this.body);
 
   @override
   State<AccountForm> createState() => _AccountFormState();
@@ -14,45 +15,21 @@ class _AccountFormState extends State<AccountForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.blueGrey,
       body: _body(context),
     );
   }
 
-  Widget _body(BuildContext context){
+  Widget _body(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              FormCard(
-                  const PersonalInformation(),
-                  "Informações Pessoais",
-                true
-
-              ),
-              const SizedBox(
-                height: 8.0,
-              ),
-              FormCard(
-                const PersonalInformation(),
-                "Endereço",
-                false
-
-              ),
-              const SizedBox(
-                height: 8.0,
-              ),
-              FormCard(
-                  const PersonalInformation(),
-                  "Contato",
-                false
-
-              ),
-            ],
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FormCard(widget.body[0], widget.body[1]),
           ),
-        )
+        ),
       ),
     );
   }

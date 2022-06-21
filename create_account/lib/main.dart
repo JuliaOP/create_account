@@ -1,7 +1,14 @@
 import 'package:create_account/features/account/presentation/pages/account_form.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+import 'features/account/presentation/widgets/personal_information.dart';
+import 'shared/data/locator.dart' as locator;
+
+GetIt getIt = GetIt.instance;
 
 void main() {
+  locator.getSetupLocator();
   runApp(const MyApp());
 }
 
@@ -17,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const AccountForm(),
+      home: AccountForm([PersonalInformation(), "Informações Pessoais"]),
     );
   }
 }
