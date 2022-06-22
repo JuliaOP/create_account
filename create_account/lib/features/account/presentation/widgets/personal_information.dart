@@ -1,3 +1,4 @@
+import 'package:create_account/features/account/model/person_account.dart';
 import 'package:create_account/features/account/presentation/pages/account_form.dart';
 import 'package:create_account/features/account/presentation/widgets/address.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,10 +13,14 @@ class PersonalInformation extends StatefulWidget {
 }
 
 class _PersonalInformationState extends State<PersonalInformation> {
+  late PersonAccount _personAccount = PersonAccount();
+
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _validate = false;
-  late String _name;
-  late String _cpfOrCnpj;
+  late String _name = '';
+  late String _cpfOrCnpj = '';
+  late String _email = '';
+  late String _phone = '';
   late String _credentialsHintText;
   late dynamic _credentialsMask;
 
@@ -23,13 +28,18 @@ class _PersonalInformationState extends State<PersonalInformation> {
       mask: "###.###.###-##", filter: {"#": RegExp(r'[0-9]')});
   final maskCNPJ = MaskTextInputFormatter(
       mask: "##.###.###/####-##", filter: {"#": RegExp(r'[0-9]')});
+  final maskPhone = MaskTextInputFormatter(
+      mask: "(##) #####-####", filter: {"#": RegExp(r'[0-9]')});
 
   final TextEditingController _credentialsController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   @override
   void initState() {
     _credentialsHintText = 'CPF';
     _credentialsMask = maskCpf;
+    _personAccount = PersonAccount();
     super.initState();
   }
 
@@ -54,12 +64,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
             TextFormField(
               cursorColor: _themeColor,
               decoration: const InputDecoration(
-                hintText: 'Nome Completo',
+                prefixIcon: Icon(
+                  Icons.person,
+                  color: _themeColor,
+                ),
+                labelText: 'Nome Completo *',
+                floatingLabelStyle: TextStyle(color: _themeColor),
                 focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: _themeColor)),
               ),
               keyboardType: TextInputType.text,
-              maxLength: 50,
               validator: (value) {
                 String? _response = _validateName(value!);
                 return _response;
@@ -67,6 +81,65 @@ class _PersonalInformationState extends State<PersonalInformation> {
               onSaved: (value) {
                 _name = value!;
               },
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 24.0),
+              child: Text(
+                "Forneça pelo menos uma das opções de contato abaixo:",
+                style: TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 16.0,
+                    fontFamily: 'roboto',
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            TextFormField(
+              controller: _emailController,
+              cursorColor: _themeColor,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                floatingLabelStyle: TextStyle(color: _themeColor),
+                prefixIcon: Icon(
+                  Icons.email,
+                  color: _themeColor,
+                ),
+                focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _themeColor)),
+              ),
+              keyboardType: TextInputType.text,
+              /*validator: (value) {
+                String? _response = _validateName(value!);
+                return _response;
+              },*/
+              onChanged: (value) {
+                _email = value;
+              },
+            ),
+            TextFormField(
+              controller: _phoneController,
+              cursorColor: _themeColor,
+              inputFormatters: [maskPhone],
+              decoration: const InputDecoration(
+                labelText: 'Telefone',
+                floatingLabelStyle: TextStyle(color: _themeColor),
+                prefixIcon: Icon(
+                  Icons.phone,
+                  color: _themeColor,
+                ),
+                focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _themeColor)),
+              ),
+              keyboardType: TextInputType.text,
+              /*validator: (value) {
+                String? _response = _validateName(value!);
+                return _response;
+              },*/
+              onChanged: (value) {
+                _phone = value;
+              },
+            ),
+            SizedBox(
+              height: 24,
             ),
             Align(
               alignment: Alignment.centerLeft,
@@ -106,10 +179,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: _themeColor))),
               keyboardType: TextInputType.number,
-              validator: (value) {
-                String? _response = _validateCredentials(value!);
-                return _response;
-              },
               inputFormatters: [_credentialsMask],
               onSaved: (value) {
                 _cpfOrCnpj = value!;
@@ -140,19 +209,17 @@ class _PersonalInformationState extends State<PersonalInformation> {
     );
   }
 
-  String? _validateCredentials(String value) {
-    bool _isCPF = _credentialsHintText == 'CPF';
+  bool _validateContactInformation() {
+    bool _hasEmail = _email.isNotEmpty &&
+        RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(_email) &&
+        _email == _emailController.text;
+    bool _hasPhone = _phone.isNotEmpty &&
+        RegExp(r"^\(?[1-9]{2}\)? ?(?:[2-8]|9[1-9])[0-9]{3}\-?[0-9]{4}$")
+            .hasMatch(_phone) &&
+        _phone == _phoneController.text;
 
-    if (value.length == 0) {
-      return "Informe o CPF ou CNPJ";
-    } else if (value.length < 18 && value.length > 14 ||
-        value.length == 14 && !_isCPF) {
-      return 'Informe um CNPJ válido';
-    } else if (value.length < 14 && _isCPF) {
-      return 'Informe um CPF válido';
-    } else {
-      return null;
-    }
+    return _hasEmail || _hasPhone;
   }
 
   String? _validateName(String value) {
@@ -165,21 +232,53 @@ class _PersonalInformationState extends State<PersonalInformation> {
     }
   }
 
-  void _sendForm() {
-    if (_formKey.currentState!.validate()) {
+  _errorMessage(BuildContext context) {
+    return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      elevation: 4.0,
+      backgroundColor: Colors.greenAccent,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(topRight: Radius.circular(25.0))),
+      content: Text(
+          "Não foi possível carregar os dados para o CEP informado. Favor preencher os campos de endereço. ",
+          style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'roboto',
+              fontSize: 16,
+              fontWeight: FontWeight.bold)),
+    ));
+  }
+
+  _sendForm() {
+    bool _validateContact = _validateContactInformation();
+    if (_formKey.currentState!.validate() && _validateContact) {
       // Sem erros na validação
+      _personAccount.name = _name;
+      _personAccount.credential = _cpfOrCnpj;
+      _personAccount.email = _email.isNotEmpty &&
+              RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                  .hasMatch(_email)
+          ? _email
+          : '';
+      _personAccount.phone = _phone.isNotEmpty &&
+              RegExp(r"^\([1-9]{2}\) (?:[2-8]|9[1-9])[0-9]{3}\-[0-9]{4}$")
+                  .hasMatch(_phone)
+          ? _phone
+          : '';
+
       _formKey.currentState!.save();
-      print("Nome $_name");
-      print("cpf/cnpj $_cpfOrCnpj");
+
+      print(_personAccount.toJson());
       Navigator.push(
           context,
           CupertinoPageRoute(
-              builder: (context) => AccountForm([Address(), "Endereço"])));
+              builder: (context) =>
+                  AccountForm([Address(_personAccount), "Endereço"])));
     } else {
       // erro de validação
       setState(() {
         _validate = true;
       });
+      return _errorMessage(context);
     }
   }
 }

@@ -5,11 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
+import '../../model/person_account.dart';
 import '../bloc/viacep_bloc.dart';
-import '../pages/account_form.dart';
 
 class Address extends StatefulWidget {
-  const Address({Key? key}) : super(key: key);
+  PersonAccount personAccount;
+
+  Address(this.personAccount);
 
   @override
   State<Address> createState() => _AddressState();
@@ -20,22 +22,27 @@ class _AddressState extends State<Address> {
 
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _validate = false;
-  bool _enableField = false;
+  bool _enablePriorityField = false;
+  bool _enableSecondaryField = false;
 
-  late final AddressModel _address = AddressModel();
+  late AddressModel _address = AddressModel();
   final cepMask = MaskTextInputFormatter(
       mask: "##.###-###", filter: {"#": RegExp(r'[0-9]')});
 
-  late String _cep;
-  late String _logradouro;
-  late String _numero;
-  late String _bairro;
-  late String _cidade;
-  late String _estado;
+  final _themeColor = Colors.greenAccent;
+
+  late String _cep = '';
+  late String _logradouro = '';
+  late String _numero = '';
+  late String _complemento = '';
+  late String _bairro = '';
+  late String _cidade = '';
+  late String _estado = '';
 
   final TextEditingController _cepController = TextEditingController();
   final TextEditingController _logradouroController = TextEditingController();
   final TextEditingController _numeroController = TextEditingController();
+  final TextEditingController _complementoController = TextEditingController();
   final TextEditingController _bairroController = TextEditingController();
   final TextEditingController _cidadeController = TextEditingController();
   final TextEditingController _estadoController = TextEditingController();
@@ -51,8 +58,6 @@ class _AddressState extends State<Address> {
   }
 
   Widget _formBody(BuildContext context) {
-    const _themeColor = Colors.greenAccent;
-
     return BlocListener<ViaCepCubit, ViaCepState>(
       listener: (context, state) {
         _viaCepBlocListener(context, state);
@@ -65,7 +70,7 @@ class _AddressState extends State<Address> {
               TextFormField(
                 controller: _cepController,
                 cursorColor: _themeColor,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'CEP',
                   focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: _themeColor)),
@@ -76,106 +81,29 @@ class _AddressState extends State<Address> {
                   String? _response = _validateCep(value!);
                   return _response;
                 },
-                /*
-                onSaved: (value) {
-                  _cep = value!;
-                  cubit..getCepInfo(_cep);
-                },*/
                 onFieldSubmitted: (value) {
-                  _cep = value!;
+                  _cep = value;
                   cubit..getCepInfo(_cep);
                 },
               ),
-              TextFormField(
-                enabled: _enableField,
-                controller: _logradouroController,
-                cursorColor: _themeColor,
-                decoration: const InputDecoration(
-                  hintText: 'Logradouro',
-                  focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: _themeColor)),
-                ),
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  String? _response = _validateName(value!);
-                  return _response;
-                },
-                onSaved: (value) {
-                  _logradouro = value!;
-                },
-              ),
-              TextFormField(
-                enabled: _enableField,
-                controller: _numeroController,
-                cursorColor: _themeColor,
-                decoration: const InputDecoration(
-                  hintText: 'Numero',
-                  focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: _themeColor)),
-                ),
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  String? _response = _validateName(value!);
-                  return _response;
-                },
-                onSaved: (value) {
-                  _numero = value!;
-                },
-              ),
-              TextFormField(
-                enabled: _enableField,
-                controller: _bairroController,
-                cursorColor: _themeColor,
-                decoration: const InputDecoration(
-                  hintText: 'Bairro',
-                  focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: _themeColor)),
-                ),
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  String? _response = _validateName(value!);
-                  return _response;
-                },
-                onSaved: (value) {
-                  _bairro = value!;
-                },
-              ),
-              TextFormField(
-                enabled: _enableField,
-                controller: _cidadeController,
-                cursorColor: _themeColor,
-                decoration: const InputDecoration(
-                  hintText: 'Cidade',
-                  focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: _themeColor)),
-                ),
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  String? _response = _validateName(value!);
-                  return _response;
-                },
-                onSaved: (value) {
-                  _cidade = value!;
-                },
-              ),
-              TextFormField(
-                enabled: _enableField,
-                controller: _estadoController,
-                cursorColor: _themeColor,
-                decoration: const InputDecoration(
-                  hintText: 'Estado',
-                  focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: _themeColor)),
-                ),
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  String? _response = _validateName(value!);
-                  return _response;
-                },
-                onSaved: (value) {
-                  _estado = value!;
-                },
-              ),
+              _formField('Logradouro', TextInputType.text, (value) {
+                _logradouro = value!;
+              }, _enablePriorityField, _logradouroController),
+              _formField('Numero', TextInputType.text, (value) {
+                _numero = value!;
+              }, _enableSecondaryField, _numeroController),
+              _formField('Complemento', TextInputType.text, (value) {
+                _complemento = value!;
+              }, _enableSecondaryField, _complementoController),
+              _formField('Bairro', TextInputType.text, (value) {
+                _bairro = value!;
+              }, _enablePriorityField, _bairroController),
+              _formField('Cidade', TextInputType.text, (value) {
+                _cidade = value!;
+              }, _enablePriorityField, _cidadeController),
+              _formField('Estado', TextInputType.text, (value) {
+                _estado = value!;
+              }, _enablePriorityField, _estadoController)
             ],
           ),
           const SizedBox(
@@ -185,6 +113,12 @@ class _AddressState extends State<Address> {
             alignment: Alignment.bottomRight,
             child: ElevatedButton(
                 onPressed: () {
+                  if (_numero.isNotEmpty) {
+                    _address.numero = _numero;
+                  }
+                  if (_complemento.isNotEmpty) {
+                    _address.complemento = _complemento;
+                  }
                   _sendForm();
                 },
                 style: ElevatedButton.styleFrom(
@@ -202,18 +136,60 @@ class _AddressState extends State<Address> {
     );
   }
 
+  Widget _formField(
+      String hintText,
+      TextInputType keyboardType,
+      void Function(String?)? onSaved,
+      bool enable,
+      TextEditingController controller) {
+    return TextFormField(
+      enabled: enable,
+      controller: controller,
+      cursorColor: _themeColor,
+      decoration: InputDecoration(
+        hintText: hintText,
+        focusedBorder:
+            UnderlineInputBorder(borderSide: BorderSide(color: _themeColor)),
+      ),
+      keyboardType: keyboardType,
+      onSaved: onSaved,
+    );
+  }
+
   _viaCepBlocListener(context, state) {
     if (state is ViaCepLoadingState) {
       return CircularProgressIndicator();
     } else if (state is ViaCepLoadedState) {
       if (state.data != null) {
         //TODO: do things here
+        _address = state.data;
+        _setDefinedFieldsText();
       } else {
         _errorMessage(context);
+        _enableManualFieldsFilling();
       }
     } else if (state is ViaCepErrorState) {
       _errorMessage(context);
+      _enableManualFieldsFilling();
     }
+  }
+
+  _enableManualFieldsFilling() {
+    setState(() {
+      _enableSecondaryField = true;
+      _enablePriorityField = true;
+    });
+  }
+
+  _setDefinedFieldsText() {
+    setState(() {
+      _enableSecondaryField = true;
+      _enablePriorityField = false;
+      _estadoController.text = _address.uf!;
+      _bairroController.text = _address.bairro!;
+      _cidadeController.text = _address.localidade!;
+      _logradouroController.text = _address.logradouro!;
+    });
   }
 
   _errorMessage(BuildContext context) {
@@ -242,26 +218,19 @@ class _AddressState extends State<Address> {
     }
   }
 
-  String? _validateName(String value) {
-    if (value.length == 0) {
-      return "Informe seu nome";
-    } else if (!value.contains(' ')) {
-      return 'Informe seu nome completo';
-    } else {
-      return null;
-    }
-  }
-
   void _sendForm() {
     if (_formKey.currentState!.validate()) {
       // Sem erros na validação
+      widget.personAccount.address = AddressModel();
+      widget.personAccount.address = _address;
       _formKey.currentState!.save();
-      //print("Nome $_name");
-      //print("cpf/cnpj $_cpfOrCnpj");
-      Navigator.push(
+      print(widget.personAccount.toJson());
+
+      /* Navigator.push(
           context,
           CupertinoPageRoute(
-              builder: (context) => AccountForm([Address(), "Endereço"])));
+              builder: (context) => AccountForm(
+                  [ContactInformation(widget.personAccount), "Endereço"])));*/
     } else {
       // erro de validação
       setState(() {

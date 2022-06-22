@@ -7,8 +7,11 @@ import '../../../shared/data/response_data.dart';
 class ViaCepRepositoryImpl extends AbstractDataService {
   Future<ResponseData<AddressModel>> getCepInfo(String cep) async {
     try {
+      var _cep = cep.replaceAll('-', '');
+      _cep = _cep.replaceAll('.', '');
+
       final dio = Dio();
-      Response response = await dio.get('https://viacep.com.br/ws/$cep/json/');
+      Response response = await dio.get('https://viacep.com.br/ws/$_cep/json/');
 
       final _data = AddressModel.fromJson(response.data);
 
