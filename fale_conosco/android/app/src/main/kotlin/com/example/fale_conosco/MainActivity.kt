@@ -1,4 +1,4 @@
-package com.example.create_account
+package com.example.fale_conosco
 
 import io.flutter.embedding.android.FlutterActivity
 

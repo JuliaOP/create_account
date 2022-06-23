@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(create_account LANGUAGES CXX)
+project(fale_conosco LANGUAGES CXX)
 
-set(BINARY_NAME "create_account")
+set(BINARY_NAME "fale_conosco")
 
 cmake_policy(SET CMP0063 NEW)
 

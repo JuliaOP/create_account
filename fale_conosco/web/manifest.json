@@ -1,6 +1,6 @@
 {
-    "name": "create_account",
-    "short_name": "create_account",
+    "name": "fale_conosco",
+    "short_name": "fale_conosco",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
