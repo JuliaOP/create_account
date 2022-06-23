@@ -238,8 +238,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
       backgroundColor: Colors.greenAccent,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topRight: Radius.circular(25.0))),
-      content: Text(
-          "Não foi possível carregar os dados para o CEP informado. Favor preencher os campos de endereço. ",
+      content: Text("Favor fornecer ao menos uma opção de contato válida. ",
           style: TextStyle(
               color: Colors.white,
               fontFamily: 'roboto',

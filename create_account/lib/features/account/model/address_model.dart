@@ -1,56 +1,40 @@
 class AddressModel {
-  String? cep;
-  String? logradouro;
-  String? complemento;
-  String? bairro;
-  String? localidade;
-  String? uf;
-  String? ibge;
-  String? gia;
-  String? ddd;
-  String? siafi;
-  String? numero;
+  String? zipcode;
+  String? street;
+  String? complement;
+  String? neighborhood;
+  String? city;
+  String? state;
+  String? number;
 
   AddressModel(
-      {this.cep,
-      this.logradouro,
-      this.complemento,
-      this.bairro,
-      this.localidade,
-      this.uf,
-      this.ibge,
-      this.gia,
-      this.ddd,
-      this.siafi,
-      this.numero});
+      {this.zipcode,
+      this.street,
+      this.complement,
+      this.neighborhood,
+      this.city,
+      this.state,
+      this.number});
 
   AddressModel.fromJson(Map<String, dynamic> json) {
-    cep = json['cep'];
-    logradouro = json['logradouro'];
-    complemento = json['complemento'];
-    bairro = json['bairro'];
-    localidade = json['localidade'];
-    uf = json['uf'];
-    ibge = json['ibge'];
-    gia = json['gia'];
-    ddd = json['ddd'];
-    siafi = json['siafi'];
-    numero = json['numero'];
+    zipcode = json['cep'];
+    street = json['logradouro'];
+    complement = json['complemento'];
+    neighborhood = json['bairro'];
+    city = json['localidade'];
+    state = json['uf'];
+    number = json['numero'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['cep'] = cep;
-    data['logradouro'] = logradouro;
-    data['complemento'] = complemento;
-    data['bairro'] = bairro;
-    data['localidade'] = localidade;
-    data['uf'] = uf;
-    data['ibge'] = ibge;
-    data['gia'] = gia;
-    data['ddd'] = ddd;
-    data['siafi'] = siafi;
-    data['numero'] = numero;
+    data['cep'] = zipcode;
+    data['logradouro'] = street;
+    data['complemento'] = complement;
+    data['bairro'] = neighborhood;
+    data['localidade'] = city;
+    data['uf'] = state;
+    data['numero'] = number;
     return data;
   }
 }

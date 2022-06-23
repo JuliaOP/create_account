@@ -1,4 +1,5 @@
 import 'package:create_account/features/account/model/address_model.dart';
+import 'package:create_account/features/account/presentation/widgets/endpoint_entry.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../model/person_account.dart';
 import '../bloc/viacep_bloc.dart';
+import '../pages/account_form.dart';
 
 class Address extends StatefulWidget {
   PersonAccount personAccount;
@@ -81,9 +83,11 @@ class _AddressState extends State<Address> {
                   String? _response = _validateCep(value!);
                   return _response;
                 },
-                onFieldSubmitted: (value) {
+                onChanged: (value) {
                   _cep = value;
-                  cubit..getCepInfo(_cep);
+                  if (_cep.length == 10) {
+                    cubit..getCepInfo(_cep);
+                  }
                 },
               ),
               _formField('Logradouro', TextInputType.text, (value) {
@@ -114,10 +118,10 @@ class _AddressState extends State<Address> {
             child: ElevatedButton(
                 onPressed: () {
                   if (_numero.isNotEmpty) {
-                    _address.numero = _numero;
+                    _address.number = _numero;
                   }
                   if (_complemento.isNotEmpty) {
-                    _address.complemento = _complemento;
+                    _address.complement = _complemento;
                   }
                   _sendForm();
                 },
@@ -136,8 +140,7 @@ class _AddressState extends State<Address> {
     );
   }
 
-  Widget _formField(
-      String hintText,
+  Widget _formField(String hintText,
       TextInputType keyboardType,
       void Function(String?)? onSaved,
       bool enable,
@@ -149,7 +152,7 @@ class _AddressState extends State<Address> {
       decoration: InputDecoration(
         hintText: hintText,
         focusedBorder:
-            UnderlineInputBorder(borderSide: BorderSide(color: _themeColor)),
+        UnderlineInputBorder(borderSide: BorderSide(color: _themeColor)),
       ),
       keyboardType: keyboardType,
       onSaved: onSaved,
@@ -160,8 +163,7 @@ class _AddressState extends State<Address> {
     if (state is ViaCepLoadingState) {
       return CircularProgressIndicator();
     } else if (state is ViaCepLoadedState) {
-      if (state.data != null) {
-        //TODO: do things here
+      if (state.data != null && state.data.street != null) {
         _address = state.data;
         _setDefinedFieldsText();
       } else {
@@ -185,16 +187,17 @@ class _AddressState extends State<Address> {
     setState(() {
       _enableSecondaryField = true;
       _enablePriorityField = false;
-      _estadoController.text = _address.uf!;
-      _bairroController.text = _address.bairro!;
-      _cidadeController.text = _address.localidade!;
-      _logradouroController.text = _address.logradouro!;
+      _estadoController.text = _address.state!;
+      _bairroController.text = _address.neighborhood!;
+      _cidadeController.text = _address.city!;
+      _logradouroController.text = _address.street!;
     });
   }
 
   _errorMessage(BuildContext context) {
     return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       elevation: 4.0,
+      duration: Duration(seconds: 6),
       backgroundColor: Colors.greenAccent,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topRight: Radius.circular(25.0))),
@@ -219,18 +222,28 @@ class _AddressState extends State<Address> {
   }
 
   void _sendForm() {
-    if (_formKey.currentState!.validate()) {
+    bool _hasAddress = _address.zipcode!.isNotEmpty &&
+        _address.state!.isNotEmpty &&
+        _address.city!.isNotEmpty &&
+        _address.neighborhood!.isNotEmpty &&
+        _address.street!.isNotEmpty;
+
+    if (_formKey.currentState!.validate() && _hasAddress) {
       // Sem erros na validação
       widget.personAccount.address = AddressModel();
       widget.personAccount.address = _address;
       _formKey.currentState!.save();
       print(widget.personAccount.toJson());
 
-      /* Navigator.push(
+      Navigator.push(
           context,
           CupertinoPageRoute(
-              builder: (context) => AccountForm(
-                  [ContactInformation(widget.personAccount), "Endereço"])));*/
+              builder: (context) =>
+                  AccountForm(
+                      [
+                        EndpointEntry(widget.personAccount),
+                        "URL do Endpoint"
+                      ])));
     } else {
       // erro de validação
       setState(() {
